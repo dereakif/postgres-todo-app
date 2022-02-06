@@ -1,10 +1,10 @@
-import "./App.css";
-
+import { useCallback, useEffect, useState } from "react";
 import { Row, Col, Card, PageHeader, Layout, notification } from "antd";
 import { Content, Header } from "antd/lib/layout/layout";
 import TodoForm from "./components/TodoForm";
 import Todos from "./apis/Todos";
-import { useState } from "react";
+import TodoList from "./components/TodoList";
+import "./App.css";
 
 const style = { padding: "10px" };
 
@@ -15,16 +15,91 @@ function App() {
     error: "",
   });
 
+  const setData = useCallback((newData) => {
+    setTodoState((prev) => ({
+      ...prev,
+      data: newData,
+    }));
+  }, []);
+
+  const setLoading = useCallback((loading) => {
+    setTodoState((prev) => ({
+      ...prev,
+      loading,
+    }));
+  }, []);
+
+  const setError = useCallback((errorMsg) => {
+    setTodoState((prev) => ({
+      ...prev,
+      error: errorMsg,
+    }));
+  }, []);
+  const addData = useCallback((newData) => {
+    setTodoState((prev) => ({
+      ...prev,
+      data: [...prev.data, ...newData],
+    }));
+  }, []);
+
+  const fetchTodos = async () => {
+    setLoading(true);
+    await Todos.get("/")
+      .then((res) => {
+        const { data } = res;
+        if (data.todoCount > 0) {
+          setData(data.todos);
+        }
+      })
+      .catch((error) => {
+        setError(error.message);
+        openNotification(
+          error.response?.statusText || "Error",
+          error.message || "Some error occurred"
+        );
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  const onTodoRemoval = async (todo_id) => {
+    setLoading(true);
+    Todos.delete(`/${todo_id}`)
+      .then((res) => {
+        const { status } = res;
+        if (status === 204) {
+          let newList = todoState.data.filter(
+            (item) => item.todo_id !== todo_id
+          );
+          setData(newList);
+          openNotification(
+            "Success",
+            `Todo successfully deleted from the list.`
+          );
+        }
+      })
+      .catch((error) => {
+        setError(error.message);
+        openNotification(
+          error.response?.statusText || "Error",
+          error.message || "Some error occurred"
+        );
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   const handleFormSubmit = async (values) => {
-    setTodoState((prev) => ({ ...prev, loading: true }));
+    setLoading(true);
     await Todos.post("/", values)
       .then((res) => {
         const { data } = res;
         if (data.todo.todo_id) {
-          setTodoState((prev) => ({
-            ...prev,
-            data: [...prev.data, data.todo],
-          }));
+          addData(data.todo);
           openNotification(
             "Success",
             `"${data.todo.title}" successfully added to the list.`
@@ -32,11 +107,11 @@ function App() {
         }
       })
       .catch((error) => {
-        setTodoState((prev) => ({ ...prev, error: error.message }));
+        setError(error.message);
         openNotification(error.response.statusText, error.message);
       })
       .finally(() => {
-        setTodoState((prev) => ({ ...prev, loading: false }));
+        setLoading(false);
       });
   };
 
@@ -66,7 +141,13 @@ function App() {
         </Row>
         <Row>
           <Col style={style} span={24}>
-            <Card title="Todo List">todo list</Card>
+            <Card title="Todo List">
+              <TodoList
+                todos={todoState.data}
+                loading={todoState.loading}
+                onTodoRemoval={onTodoRemoval}
+              />
+            </Card>
           </Col>
         </Row>
       </Content>
