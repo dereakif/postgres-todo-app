@@ -172,7 +172,7 @@ function App() {
       <Content>
         <Row>
           <Col style={style} span={24}>
-            <Card title="Create a new todo">
+            <Card title={!idToEdit ? "Create a new todo" : "Edit the todo"}>
               <TodoForm
                 form={form}
                 idToEdit={idToEdit}
