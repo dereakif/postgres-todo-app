@@ -1,4 +1,5 @@
 import { Form, Input, Button, Switch } from "antd";
+import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
 
 const layout = {
   labelCol: {
@@ -44,7 +45,10 @@ const TodoForm = ({ handleFormSubmit }) => {
         name="is_completed"
         valuePropName="checked"
       >
-        <Switch />
+        <Switch
+          checkedChildren={<CheckOutlined />}
+          unCheckedChildren={<CloseOutlined />}
+        />
       </Form.Item>
       <Form.Item {...tailLayout}>
         <Button type="primary" htmlType="submit">
