@@ -8,7 +8,9 @@ module.exports = router;
 // Get all todos
 router.get("/api/todos", async (req, res, next) => {
   try {
-    const { rows } = await db.query("SELECT * FROM todos");
+    const { rows } = await db.query(
+      "SELECT * FROM todos ORDER BY updated_at DESC"
+    );
     res.status(200).json({
       todoCount: rows.length,
       todos: rows,
