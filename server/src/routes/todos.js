@@ -10,10 +10,8 @@ router.get("/api/todos", async (req, res, next) => {
   try {
     const { rows } = await db.query("SELECT * FROM todos");
     res.status(200).json({
-      results: rows.length,
-      data: {
-        todos: rows,
-      },
+      todoCount: rows.length,
+      todos: rows,
     });
   } catch (error) {
     next(error);
@@ -28,9 +26,7 @@ router.get("/api/todos/:todo_id", async (req, res, next) => {
       todo_id,
     ]);
     res.status(200).json({
-      data: {
-        todo: rows[0],
-      },
+      todo: rows[0],
     });
   } catch (error) {
     next(error);
@@ -47,9 +43,7 @@ router.post("/api/todos", async (req, res, next) => {
       [title, description, is_completed, date, date]
     );
     res.status(201).json({
-      data: {
-        todo: rows[0],
-      },
+      todo: rows[0],
     });
   } catch (error) {
     next(error);
@@ -67,9 +61,7 @@ router.put("/api/todos/:todo_id", async (req, res, next) => {
       [title, description, is_completed, date, todo_id]
     );
     res.status(200).json({
-      data: {
-        todo: rows[0],
-      },
+      todo: rows[0],
     });
   } catch (error) {
     next(error);
@@ -84,9 +76,7 @@ router.delete("/api/todos/:todo_id", async (req, res, next) => {
       todo_id,
     ]);
     res.status(204).json({
-      data: {
-        todo_id,
-      },
+      todo_id,
     });
   } catch (error) {
     next(error);
