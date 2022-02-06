@@ -1,0 +1,13 @@
+@import "~antd/dist/antd.css";
+
+section.ant-layout {
+  height: 100%;
+}
+
+.page-header span {
+  color: white;
+}
+
+.ant-page-header {
+  padding-bottom: 0;
+}
