@@ -1,26 +1,30 @@
 import React from "react";
 import { Tooltip, Tag, List, Button, Popconfirm, Popover } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import UpdatedAt from "./UpdatedAt";
 
 export const TodoItem = ({ todo, onTodoRemoval, handleSelect }) => {
   return (
     <List.Item
       actions={[
-        <Tooltip title={`Edit ${todo.title}`}>
-          <Button onClick={() => handleSelect(todo.todo_id)}>
-            <EditOutlined />
-          </Button>
-        </Tooltip>,
-        <Popconfirm
-          title="Are you sure you want to delete this item?"
-          onConfirm={() => {
-            onTodoRemoval(todo.todo_id);
-          }}
-        >
-          <Button type="primary" danger>
-            X
-          </Button>
-        </Popconfirm>,
+        <>
+          <UpdatedAt timestamp={todo.updated_at} />
+          <Tooltip title={`Edit ${todo.title}`}>
+            <Button onClick={() => handleSelect(todo.todo_id)}>
+              <EditOutlined />
+            </Button>
+          </Tooltip>
+          <Popconfirm
+            title="Are you sure you want to delete this item?"
+            onConfirm={() => {
+              onTodoRemoval(todo.todo_id);
+            }}
+          >
+            <Button style={{ marginLeft: "5px" }} type="primary" danger>
+              <DeleteOutlined />
+            </Button>
+          </Popconfirm>
+        </>,
       ]}
       key={todo.todo_id}
     >
