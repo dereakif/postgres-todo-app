@@ -2,7 +2,7 @@ import { List } from "antd";
 import React from "react";
 import { TodoItem } from "../TodoItem";
 
-function TodoList({ todos, loading, onTodoRemoval }) {
+function TodoList({ todos, loading, onTodoRemoval, handleSelect }) {
   return (
     <List
       locale={{
@@ -10,7 +10,11 @@ function TodoList({ todos, loading, onTodoRemoval }) {
       }}
       dataSource={todos}
       renderItem={(todo) => (
-        <TodoItem todo={todo} onTodoRemoval={onTodoRemoval} />
+        <TodoItem
+          todo={todo}
+          onTodoRemoval={onTodoRemoval}
+          handleSelect={handleSelect}
+        />
       )}
       pagination={{
         position: "bottom",

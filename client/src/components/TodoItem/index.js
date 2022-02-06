@@ -1,13 +1,13 @@
 import React from "react";
-import { Tooltip, Tag, List, Button, Popconfirm } from "antd";
+import { Tooltip, Tag, List, Button, Popconfirm, Popover } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 
-export const TodoItem = ({ todo, onTodoRemoval }) => {
+export const TodoItem = ({ todo, onTodoRemoval, handleSelect }) => {
   return (
     <List.Item
       actions={[
         <Tooltip title={`Edit ${todo.title}`}>
-          <Button>
+          <Button onClick={() => handleSelect(todo.todo_id)}>
             <EditOutlined />
           </Button>
         </Tooltip>,
@@ -24,7 +24,14 @@ export const TodoItem = ({ todo, onTodoRemoval }) => {
       ]}
       key={todo.todo_id}
     >
-      <Tag color={todo.is_completed ? "cyan" : "red"}>{todo.title}</Tag>
+      <Popover
+        placement="rightTop"
+        content={todo.description}
+        title={todo.title}
+        trigger="hover"
+      >
+        <Tag color={todo.is_completed ? "cyan" : "red"}>{todo.title}</Tag>
+      </Popover>
     </List.Item>
   );
 };

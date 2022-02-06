@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Row, Col, Card, PageHeader, Layout, notification } from "antd";
+import { Row, Col, Card, PageHeader, Layout, notification, Form } from "antd";
 import { Content, Header } from "antd/lib/layout/layout";
 import TodoForm from "./components/TodoForm";
 import Todos from "./apis/Todos";
@@ -14,6 +14,8 @@ function App() {
     data: [],
     error: "",
   });
+  const [idToEdit, setIdToEdit] = useState(null);
+  const [form] = Form.useForm();
 
   const setData = useCallback((newData) => {
     setTodoState((prev) => ({
@@ -38,7 +40,7 @@ function App() {
   const addData = useCallback((newData) => {
     setTodoState((prev) => ({
       ...prev,
-      data: [...prev.data, ...newData],
+      data: [newData, ...prev.data],
     }));
   }, []);
 
@@ -93,6 +95,34 @@ function App() {
       });
   };
 
+  const handleEdit = async (values) => {
+    setLoading(true);
+    await Todos.put(`/${idToEdit}`, values)
+      .then((res) => {
+        const { data } = res;
+        if (data.todo.todo_id) {
+          const todoIndex = todoState.data.findIndex(
+            (item) => item.todo_id === idToEdit
+          );
+          const newList = [...todoState.data];
+          newList[todoIndex] = data.todo;
+          setData(newList);
+          openNotification(
+            "Success",
+            `"${data.todo.title}" successfully updated.`
+          );
+        }
+      })
+      .catch((error) => {
+        setError(error.message);
+        openNotification(error.response.statusText, error.message);
+      })
+      .finally(() => {
+        setIdToEdit(null);
+        setLoading(false);
+      });
+  };
+
   const handleFormSubmit = async (values) => {
     setLoading(true);
     await Todos.post("/", values)
@@ -115,6 +145,14 @@ function App() {
       });
   };
 
+  const handleSelect = (todo_id) => {
+    const selectedTodo = todoState.data.find(
+      (item) => item.todo_id === todo_id
+    );
+    setIdToEdit(todo_id);
+    form.setFieldsValue(selectedTodo);
+  };
+
   const openNotification = (title, description) => {
     notification.open({
       message: title,
@@ -135,7 +173,13 @@ function App() {
         <Row>
           <Col style={style} span={24}>
             <Card title="Create a new todo">
-              <TodoForm handleFormSubmit={handleFormSubmit} />
+              <TodoForm
+                form={form}
+                idToEdit={idToEdit}
+                setIdToEdit={setIdToEdit}
+                handleFormSubmit={handleFormSubmit}
+                handleEdit={handleEdit}
+              />
             </Card>
           </Col>
         </Row>
@@ -146,6 +190,7 @@ function App() {
                 todos={todoState.data}
                 loading={todoState.loading}
                 onTodoRemoval={onTodoRemoval}
+                handleSelect={handleSelect}
               />
             </Card>
           </Col>

@@ -15,15 +15,24 @@ const tailLayout = {
     span: 16,
   },
 };
-const TodoForm = ({ handleFormSubmit }) => {
-  const [form] = Form.useForm();
-
+const TodoForm = ({
+  handleFormSubmit,
+  handleEdit,
+  idToEdit,
+  setIdToEdit,
+  form,
+}) => {
   const onReset = () => {
     form.resetFields();
+    setIdToEdit(null);
   };
 
   const onFinish = (values) => {
-    handleFormSubmit(values);
+    if (idToEdit) {
+      handleEdit(values);
+    } else {
+      handleFormSubmit(values);
+    }
     onReset();
   };
 
