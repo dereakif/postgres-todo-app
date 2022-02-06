@@ -6,7 +6,7 @@ const router = new Router();
 module.exports = router;
 
 // Get all todos
-router.get("/api/todos", async (req, res) => {
+router.get("/api/todos", async (req, res, next) => {
   try {
     const { rows } = await db.query("SELECT * FROM todos");
     res.status(200).json({
@@ -16,15 +16,14 @@ router.get("/api/todos", async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 });
 
 // Get a todo
-router.get("/api/todos/:todo_id", async (req, res) => {
+router.get("/api/todos/:todo_id", async (req, res, next) => {
   try {
     const { todo_id } = req.params;
-    console.log(todo_id);
     const { rows } = await db.query("SELECT * FROM todos WHERE todo_id = $1", [
       todo_id,
     ]);
@@ -34,12 +33,12 @@ router.get("/api/todos/:todo_id", async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 });
 
 // Create a todo
-router.post("/api/todos", async (req, res) => {
+router.post("/api/todos", async (req, res, next) => {
   try {
     const { title, description, is_completed } = req.body;
     const date = new Date();
@@ -47,12 +46,49 @@ router.post("/api/todos", async (req, res) => {
       "INSERT INTO todos (title, description, is_completed, created_at, updated_at) values ($1, $2, $3, $4, $5) RETURNING *",
       [title, description, is_completed, date, date]
     );
+    res.status(201).json({
+      data: {
+        todo: rows[0],
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Update a todo
+router.put("/api/todos/:todo_id", async (req, res, next) => {
+  try {
+    const { title, description, is_completed } = req.body;
+    const { todo_id } = req.params;
+    const date = new Date();
+    const { rows } = await db.query(
+      "UPDATE todos SET title = $1, description = $2, is_completed = $3, updated_at = $4 WHERE todo_id = $5 RETURNING *",
+      [title, description, is_completed, date, todo_id]
+    );
     res.status(200).json({
       data: {
         todo: rows[0],
       },
     });
   } catch (error) {
-    console.log(error);
+    next(error);
+  }
+});
+
+// Delete a todo
+router.delete("/api/todos/:todo_id", async (req, res, next) => {
+  try {
+    const { todo_id } = req.params;
+    const { rows } = await db.query("DELETE FROM todos WHERE todo_id = $1", [
+      todo_id,
+    ]);
+    res.status(204).json({
+      data: {
+        todo_id,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
 });
