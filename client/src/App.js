@@ -91,6 +91,10 @@ function App() {
         );
       })
       .finally(() => {
+        if (idToEdit) {
+          form.resetFields();
+          setIdToEdit(null);
+        }
         setLoading(false);
       });
   };
